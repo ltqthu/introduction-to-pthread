@@ -1,3 +1,7 @@
+每个进程都有一个进程ID，每个线程也有一个线程ID。
+
+进程ID在每个系统中是唯一的，但线程ID只有在它所属进程的上下文中才有意义。
+
 # 创建线程（pthread_create）
 
 `pthread_create`用来创建线程。
@@ -47,6 +51,8 @@ int pthread_create(pthread_t *thread,
 #include <pthread.h>
 pthread_t pthread_self(void);
 ```
+
+# 比较两个线程（pthread_equal）
 
 在同一个线程组内，线程库提供了接口，可以判断两个线程ID是否对应着同一个线程：
 
@@ -171,31 +177,31 @@ thread_count is = 5
 #include <pthread.h>
 #include <cstdlib>
 
-#define NUM_THREADS     5
+#define NUM_THREADS    5
 
-struct thread_data {
+struct thread_struct {
     int  thread_id;
     char* message;
 };
 
-void* say_hello(void* threadarg)
+void* recv_message(void* threadarg)
 {
-    thread_data* my_data = (thread_data*) threadarg;
-    printf("say_hello(): %d %s\n", my_data->thread_id, my_data->message);
+    thread_struct* p_thread_struct = (thread_struct*)threadarg;
+    printf("recv_message(): %d %s\n", p_thread_struct->thread_id, p_thread_struct->message);
     pthread_exit(nullptr);
 }
 
 int main()
 {
     pthread_t threads[NUM_THREADS];
-    thread_data td[NUM_THREADS];
+    thread_struct td[NUM_THREADS];
 
     for (int i = 0; i < NUM_THREADS; i++) {
         printf("main(): creating thread %d \n", i);
         td[i].thread_id = i;
-        td[i].message = (char*)"hello";
-        int rc = pthread_create(&threads[i], nullptr, say_hello, (void*)& td[i]);
-        if (rc) 
+        td[i].message = (char*)"hello pthread!";
+        int rc = pthread_create(&threads[i], nullptr, recv_message, (void*)& td[i]);
+        if (rc)
         {
             printf("error: unable to create thread, error code: %d\n", rc);
             exit(-1);
@@ -211,14 +217,14 @@ int main()
 ```
 main(): creating thread 0 
 main(): creating thread 1 
-say_hello(): 0 hello
 main(): creating thread 2 
-say_hello(): 1 hello
 main(): creating thread 3 
-say_hello(): 2 hello
 main(): creating thread 4 
-say_hello(): 3 hello
-say_hello(): 4 hello
+recv_message(): 4 hello pthread!
+recv_message(): 0 hello pthread!
+recv_message(): 1 hello pthread!
+recv_message(): 2 hello pthread!
+recv_message(): 3 hello pthread!
 ```
 
 ## 示例四：不加锁的后果
