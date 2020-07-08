@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     pthread_mutex_init(&mutex, NULL); // 初始化互斥锁
-    pthread_cond_init(&cond, NULL); // 初始化条件变量
+    pthread_cond_init(&cond, NULL);   // 初始化条件变量
 
     // 创建老板线程
     pthread_create(&th[0], &attr, boss_rest, (void*)1l);
